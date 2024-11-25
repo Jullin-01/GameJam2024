@@ -1,0 +1,1 @@
+(()=>{"use strict";document.querySelector(".menu").addEventListener("mousedown",(e=>e.preventDefault()))})();
