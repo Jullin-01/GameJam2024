@@ -1,4 +1,11 @@
+import {Cinematic} from './cinematic.js';
 import './styles.css';
 
-// Запрещаем выделение текста через события мыши
+let _APP = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+    _APP = new Cinematic();
+}); 
+
+// Prevent text selection
 document.querySelector('.menu').addEventListener('mousedown', (e) => e.preventDefault());
