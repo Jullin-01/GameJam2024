@@ -42,7 +42,7 @@ export class Cinematic {
             new THREE.MeshBasicMaterial({ map: this._createGradientTexture('#B0E0E6', '#76b5dc'), side: THREE.BackSide }),
             new THREE.MeshBasicMaterial({ map: this._createGradientTexture('#B0E0E6', '#76b5dc'), side: THREE.BackSide }),
         ];
-        this._skyboxGeometry = new THREE.BoxGeometry(50, 50, 50);
+        this._skyboxGeometry = new THREE.BoxGeometry(450, 450, 450);
         this._skybox = new THREE.Mesh(this._skyboxGeometry, this._skyboxMaterialArray);
         this._scene.add(this._skybox);
 
