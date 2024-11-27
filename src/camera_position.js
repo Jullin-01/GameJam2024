@@ -1,4 +1,4 @@
-export class CameraSwitcher {
+export class CameraPositions {
     constructor() {
         // Array of camera positions
         this.cameraPositions = [
