@@ -1,3 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, 
+body {
+  overflow: hidden;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: rgb(43, 38, 38);
@@ -124,17 +134,17 @@ body {
 
   /* Loading window styles */
 
-  .loading {
+   #loading {
     font-size: 36px;
     font-weight: 800;
     color: white;
 
-    display: none;
-}
+ /*   display: none;  */
+  }
 
 /* Cinematic window styles */
 
-  .cinematic {
+  #cinematic {
     background-color: #00447c;
     height: 100vh;
     width: 100%;
@@ -145,7 +155,7 @@ body {
 
 /* Registration window styles */
 
-  .registration {
+  #registration {
     background: linear-gradient(to bottom, #74caff, #76b5dc);
     height: 100vh;
     width: 100%;
@@ -187,7 +197,7 @@ body {
 
   /* Game window styles */
   
-  .game {
+  #game {
     background-color: #00447c;
     height: 100vh;
     width: 100%;
@@ -197,10 +207,14 @@ body {
   }
 
 
-  .canvas {
+  #div-canvas {
     display: block;
     width: 100vw;
     height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
 
-    display: none;
+    display: none;  
 }

@@ -18,6 +18,7 @@ module.exports = {
             patterns: [
                 {
                     from: path.resolve(__dirname, '../static'),
+                    to: 'static',
                     noErrorOnMissing: true
                 }
             ]
@@ -26,7 +27,7 @@ module.exports = {
             template: path.resolve(__dirname, '../src/index.html'),
             minify: true
         }),
-        new MiniCSSExtractPlugin()
+        new MiniCSSExtractPlugin({filename: 'styles.css'}),
     ],
     module:
     {

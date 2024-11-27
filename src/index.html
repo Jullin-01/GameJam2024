@@ -6,13 +6,15 @@
     <title>Game Jam 2024</title>
 </head>
 <body>
-    <div class="loading">ЗАГРУЗКА...</div>
-    <div class="cinematic"></div>
-    <div class="registration">
+    <div id="loading">
+        <p id="message">ЗАГРУЗКА...</p>
+    </div>
+    <div id="cinematic"></div>
+    <div id="registration">
         <input type="text" class="player-name" placeholder="Введите имя">
         <button class="menu-button button-start">НАЧАТЬ</button>
     </div>
-    <div class="game"></div>
+    <div id="game"></div>
 
     <div class="menu">
         <div class="menu-header">PAUSED</div>
@@ -26,5 +28,5 @@
         </div>
     </div>
 
-    <div class="canvas"><canvas id="canvas"></canvas></div>
+    <div id="div-canvas"><canvas id="canvas"></canvas></div>
 </body>

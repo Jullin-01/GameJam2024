@@ -1,10 +1,15 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {CameraSwitcher} from './camera.js';
+
 
 export class Cinematic {
     constructor(renderer) {
         console.log('Cinematic constructor');
         this._renderer = renderer;
+        this._is_rendering_enabled = false;
+        this._cameraSwitcher = new CameraSwitcher();
         this._Init();
     }
 
@@ -24,7 +29,8 @@ export class Cinematic {
             0.1,
             1000
         );
-        this._camera.position.set(-1, 0.22, 0.74);
+        
+        this._updateCameraPosition();
         this._scene.add(this._camera);
 
         // Skybox
@@ -52,12 +58,14 @@ export class Cinematic {
         this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 
         // Event Listener
-        window.addEventListener('resize', () => {
-            this._OnWindowResize();
-        });
+        window.addEventListener('resize', () => this._OnWindowResize());
+        window.addEventListener('click', () => this._SwitchCamera());
 
         // Animate
+        this._clock = new THREE.Clock();
         this._Animate();
+        this._LoadBearModel();
+        this._LoadMapModel();
     }
 
     _OnWindowResize() {
@@ -92,9 +100,61 @@ export class Cinematic {
         return new THREE.CanvasTexture(canvas);
     }
 
+    _LoadBearModel() {
+        this._loader = new GLTFLoader();
+        this._bearModel = null;
+        this._mixer = null;
+
+        this._loader.load(
+            './static/bear.glb',
+            (glb) => {
+                this._bearModel = glb.scene;
+                this._bearModel.position.set(0, 0, 0);
+                this._bearModel.rotation.y = Math.PI / 2;
+                this._scene.add(glb.scene);
+                this._mixer = new THREE.AnimationMixer(glb.scene);
+                this._mixer.clipAction(THREE.AnimationClip.findByName(glb.animations, 'idle')).play();
+            },
+        );
+    }
+
+    _LoadMapModel() {
+        this._loader = new GLTFLoader();
+        this._mapModel = null;
+
+        this._loader.load(
+            './static/map_cinematic_full.glb',
+            (glb) => {
+                this._mapModel = glb.scene;
+                this._scene.add(glb.scene);
+            },
+        );
+    }
+
+    _updateCameraPosition() {
+        // Getting current position from CameraSwitcher
+        const position = this._cameraSwitcher.getCurrentPosition();
+        this._camera.position.set(position.x, position.y, position.z);
+        this._camera.lookAt(0, 0, 0); // Looking to the center of the stage
+    }
+
+    _SwitchCamera() {
+        // Switch to next camera
+        const nextPosition = this._cameraSwitcher.switchToNextCamera();
+        this._updateCameraPosition();
+        console.log(`Switched to camera at position: x=${nextPosition.x}, y=${nextPosition.y}, z=${nextPosition.z}`);
+    }
+
     _Animate() {
-        requestAnimationFrame(() => this._Animate());
-        this._renderer.render(this._scene, this._camera);
+        requestAnimationFrame(this._Animate.bind(this));
+
+        const delta = this._clock.getDelta();
+
+        if (this._mixer) {
+            this._mixer.update(delta);
+        }
+
         this._controls.update();
+        this._renderer.render(this._scene, this._camera);
     }
 }
