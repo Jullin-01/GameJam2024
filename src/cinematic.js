@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {CameraPositions} from './camera_position.js';
+//import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {CameraPositions} from './cameraPosition.js';
 import { loadBearModel, loadMapModel } from './loader.js';
 
 
@@ -22,14 +22,19 @@ export class Cinematic {
         this._renderer = new THREE.WebGLRenderer({ canvas: this._canvas });
         this._renderer.setSize(window.innerWidth, window.innerHeight);
 
+        this._fov = 39.597755;
+        this._aspect = 16 / 9;
+
         // Camera
         this._camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
+            this._fov,
+            this._aspect,
             0.1,
             1000
         );
-        
+
+        this._OnWindowResize();
+
         this._updateCameraPosition();
         this._scene.add(this._camera);
 
@@ -55,7 +60,7 @@ export class Cinematic {
         this._scene.add(this._directionalLight);
 
         // Controls
-        this._controls = new OrbitControls(this._camera, this._renderer.domElement);
+        //this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 
         // Event Listener
         window.addEventListener('resize', () => this._OnWindowResize());
@@ -84,13 +89,35 @@ export class Cinematic {
     _OnWindowResize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
+ 
+        const windowAspect = width / height;
 
+        if (windowAspect > this._aspect) {
+            // The screen is wider than necessary - add stripes on the sides
+            const renderHeight = height;
+            const renderWidth = renderHeight * this._aspect;
+            this._renderer.setSize(renderWidth, renderHeight);
+
+            // Center the canvas horizontally
+            this._renderer.domElement.style.marginLeft = `${(width - renderWidth) / 2}px`;
+            this._renderer.domElement.style.marginTop = `0px`;
+        } else {
+            // The screen is higher than necessary - add stripes at the top and bottom
+            const renderWidth = width;
+            const renderHeight = renderWidth / this._aspect;
+            this._renderer.setSize(renderWidth, renderHeight);
+
+            // Center the canvas vertically
+            this._renderer.domElement.style.marginTop = `${(height - renderHeight) / 2}px`;
+            this._renderer.domElement.style.marginLeft = `0px`;
+        }
+ 
         // Updating the location of the side camera
-        this._camera.aspect = width / height;
-        this._camera.updateProjectionMatrix();
+        //this._camera.aspect = width / height;
+        //this._camera.updateProjectionMatrix();
 
         // Update render sizes
-        this._renderer.setSize(width, height);
+        //this._renderer.setSize(width, height);
     }
 
     _createGradientTexture(color1, color2) {
@@ -113,13 +140,18 @@ export class Cinematic {
         return new THREE.CanvasTexture(canvas);
     }
 
-    
-
     _updateCameraPosition() {
         // Getting current position from CameraSwitcher
         const position = this._cameraPositions.getCurrentPosition();
+        const lookAt = this._cameraPositions.getCurrentLookAt();
+        const up = this._cameraPositions.getCurrentUp();
         this._camera.position.set(position.x, position.y, position.z);
-        this._camera.lookAt(0, 0, 0); // Looking to the center of the stage
+        this._camera.up.set(up.x, up.y, up.z);
+        this._camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
+
+        console.log(`CameraPositions: x=${position.x}, y=${position.y}, z=${position.z}`);
+        console.log(`CameraLookAt: x=${lookAt.x}, y=${lookAt.y}, z=${lookAt.z}`);
+        console.log(`CameraUp: x=${up.x}, y=${up.y}, z=${up.z}`);
     }
 
     _SwitchCamera() {
@@ -138,7 +170,7 @@ export class Cinematic {
             this._mixer.update(delta);
         }
 
-        this._controls.update();
+        //this._controls.update();
         this._renderer.render(this._scene, this._camera);
     }
 }
