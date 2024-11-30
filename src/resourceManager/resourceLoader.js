@@ -8,6 +8,17 @@ let audioFiles = [
 
 let glbFiles = [
     'bear.glb',
+    'flower.glb',
+    'mushroom.glb',
+    'three1.glb',
+    'three2.glb',
+    'three3.glb',
+    'three4.glb',
+    'rock1.glb',
+    'rock2.glb',
+    'rock3.glb',
+    'rock4.glb',
+    'rock5.glb',
     'map_cinematic_full.glb'
 ];
 

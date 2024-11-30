@@ -2,6 +2,7 @@ import * as THREE from 'three';
 //import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {CinematicFSM} from './cinematicFSM.js';
 import { Character } from '../character.js';
+import * as ENV from './environmentPosition.js';
 
 export class Cinematic {
     constructor(parent) {
@@ -67,6 +68,19 @@ export class Cinematic {
         this._cinematicMap = this._parent._modelManager.GetCloneGlbModelByName('map_cinematic_full.glb');
         this._scene.add(this._cinematicMap);
 
+        // flowers, mushrooms, threes, rocks
+        this._LoadEnvironmentModels('flower.glb', ENV.flowersAttributes);
+        this._LoadEnvironmentModels('mushroom.glb', ENV.mushroomsAttributes);
+        this._LoadEnvironmentModels('three1.glb', ENV.three1Attributes);
+        this._LoadEnvironmentModels('three2.glb', ENV.three2Attributes);
+        this._LoadEnvironmentModels('three3.glb', ENV.three3Attributes);
+        this._LoadEnvironmentModels('three4.glb', ENV.three4Attributes);
+        this._LoadEnvironmentModels('rock1.glb', ENV.rock1Attributes);
+        this._LoadEnvironmentModels('rock2.glb', ENV.rock2Attributes);
+        this._LoadEnvironmentModels('rock3.glb', ENV.rock3Attributes);
+        this._LoadEnvironmentModels('rock4.glb', ENV.rock4Attributes);
+        this._LoadEnvironmentModels('rock5.glb', ENV.rock5Attributes);
+
         // Bears [0] - main1, [1] - main2, [2..n] - other
         this._CreateBearsArray();
 
@@ -82,6 +96,22 @@ export class Cinematic {
         // Animate
         this._clock = new THREE.Clock();
         this._Animate();
+    }
+
+    _LoadEnvironmentModels(modelName, attr) {
+        const modelManager = this._parent._modelManager;
+        const scene = this._scene;
+
+        for (let i = 0; i < attr.length; i++) {
+            const model = modelManager.GetCloneGlbModelByName(modelName);
+            const position = new THREE.Vector3(attr[i][0].x, attr[i][0].z, -attr[i][0].y);
+            const scale = new THREE.Vector3(attr[i][1].x, attr[i][1].z, attr[i][1].y);
+
+            model.position.copy(position);
+            model.scale.copy(scale);
+
+            scene.add(model);
+        }        
     }
 
     _CreateBearsArray() {
