@@ -53,27 +53,28 @@ body {
 }
 
 .menu-button {
-  background: linear-gradient(to bottom, #94c9f4, #5178a6);
+  background: linear-gradient(300deg, #94c9f4, #5178a6);
   border: none;
-  border-radius: 50px;
+ /* border-radius: 50px; */
   padding: 15px;
   width: 100%;
   color: white;
   font-size: 26px;
   font-weight: 800;
   margin: 10px 0;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 4px 0 #ffffff, inset 0 -6px 0 #b0b0b0,
-    0 5px 10px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 3px 5px rgba(165, 167, 168, 0.98);
+  clip-path: polygon(5% 0%, 95% 0%, 100% 15%, 100% 85%, 95% 100%, 5% 100%, 0% 85%, 0% 15%);
+  box-shadow: inset 0 2px 0 #ffffff, inset 0 -2px 0 #b0b0b0,
+    0 8px 15px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.menu-button:hover {
+/* .menu-button:hover {
   transform: translateY(-2px);
   box-shadow: inset 0 2px 0 #ffffff, inset 0 -2px 0 #b0b0b0,
     0 8px 15px rgba(0, 0, 0, 0.3);
-}
+} */
 
 .menu-button:active {
   transform: translateY(2px);
@@ -141,6 +142,7 @@ body {
   height: 100vh;
   width: 100%;
   display: flex;
+  z-index: 1;
 
   display: none;
 }
@@ -190,10 +192,14 @@ body {
 /* Game window styles */
 
 #game {
-  background-color: #00447c;
   height: 100vh;
   width: 100%;
   display: flex;
+  font-size: 36px;
+  font-weight: 800;
+  color: white;
+  justify-content: center;
+  align-items: center;
 
   display: none;
 }
@@ -210,3 +216,28 @@ body {
   display: none;
 }
 
+/* Greetings window styles */
+#greetings {
+  position: absolute;
+  background: rgb(43, 38, 38);
+  color: #ffffff;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  opacity: 0;
+  transition: opacity 5s ease-in-out;
+
+  font-size: 72px;
+  font-weight: bold;
+  color: rgb(255, 222, 0); 
+  text-shadow: 
+    1px 1px 2px rgb(170, 103, 45),   /* level 1 */
+    2px 2px 4px rgb(250, 53, 7),   /* level 2 */
+    3px 3px 6px yellow,   /* level 3 */
+    4px 4px 8px rgb(251, 0, 0),   /* level 4 */
+    5px 5px 10px red;  /* Maximum depth */
+
+  z-index: 2;
+}
