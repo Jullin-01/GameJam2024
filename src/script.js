@@ -1,4 +1,4 @@
-import {Cinematic} from './cinematic.js';
+import {Cinematic} from './cinematic/cinematic.js';
 import {ResourceLoader} from './resourceManager/resourceLoader.js';
 import './styles.css';
 
@@ -24,11 +24,11 @@ function handleInteraction() {
     document.removeEventListener("click", handleInteraction);
     document.removeEventListener("keydown", handleInteraction);
 
-    _APP = new Cinematic();
+    _APP = new Cinematic(_ResourceLoader);
 
     console.log('Start cinematic');
     _ResourceLoader._audioManager.InitAudioPlayer();
-    _ResourceLoader._audioManager.StartPlayback('GameSketch1.2.wav', false);
+    //_ResourceLoader._audioManager.StartPlayback('GameSketch1.2.wav', false);
 
     document.getElementById("loading").style.display = "none";
     document.getElementById("div-canvas").style.display = "flex";

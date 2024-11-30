@@ -29,6 +29,10 @@ export class ModelManager {
             model.animations = glb.animations;
         }
 
+        if (glb.hasOwnProperty('cameras')) {
+            model.cameras = glb.cameras;
+        }
+
         this._map.set(name, model);
 
         return this.CloneGlbModel(model);
@@ -49,6 +53,10 @@ export class ModelManager {
             copyOfModel.mixer = new THREE.AnimationMixer(copyOfModel);
         }
 
+        if (model.hasOwnProperty('cameras')) {
+            copyOfModel.cameras = model.cameras;
+        }
+
         return copyOfModel;
     }
 
@@ -59,7 +67,7 @@ export class ModelManager {
     static UpdateGlbModelColor(model, color, materialName) {
         model.traverse(function (object) {
             if (object.material && object.material.name == materialName) {
-                object.material.color.setStyle(color);
+                object.material.color.setFromVector3(color);
             }
         });
     }
