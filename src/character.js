@@ -37,6 +37,11 @@ export class Character {
         this._characterFSM.SetState('idle');
     }
 
+    BecomeHappy() {
+        this._isRunning = false;
+        this._characterFSM.SetState('happy-idle');
+    }
+
     Update(timeElapsedSec) {
         if (this._isRunning) {
             this._model.position.add(this._directionRunning.clone().multiplyScalar(this._velocityRunning * timeElapsedSec));
@@ -54,6 +59,7 @@ class _CharacterFSM extends FiniteStateMachine {
     _Init() {
         this._AddState('idle', _IdleState);
         this._AddState('running', _RunningState);
+        this._AddState('happy-idle', _HappyIdleState);
     }
 };
 
@@ -113,6 +119,38 @@ class _RunningState extends State {
             runAction.play();
         } else {
             runAction.play();
+        }
+    }
+
+    Exit() {
+    }
+
+    Update() {
+    }
+};
+
+class _HappyIdleState extends State {
+    constructor(parent) {
+        super(parent, 'happy-idle');
+    }
+
+    Enter(prevState) {
+        const animations = this._parent._character._model.animations;
+        const mixer = this._parent._character._model.mixer;
+        const clip = THREE.AnimationClip.findByName(animations, 'happy-idle');
+        const idleAction = mixer.clipAction(clip);
+
+        if (prevState) {
+            const prevClip = THREE.AnimationClip.findByName(animations, prevState.Name);
+            const prevAction = mixer.clipAction(prevClip);
+            idleAction.time = 0.0;
+            idleAction.enabled = true;
+            idleAction.setEffectiveTimeScale(1.0);
+            idleAction.setEffectiveWeight(1.0);
+            idleAction.crossFadeFrom(prevAction, 0.5, true);
+            idleAction.play();
+        } else {
+            idleAction.play();
         }
     }
 

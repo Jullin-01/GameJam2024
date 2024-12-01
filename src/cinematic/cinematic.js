@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import {CinematicFSM} from './cinematicFSM.js';
 import { Character } from '../character.js';
 import * as ENV from './environmentPosition.js';
+import * as BEARS from './bearPosition.js';
+import * as PORTAL from './portalShader.js';
 
 export class Cinematic {
     constructor(parent) {
@@ -15,6 +17,8 @@ export class Cinematic {
         this._mixersArray = [];
         this._bears = [];
         
+        this._uTime = 0;
+
         this._Init();
     }
 
@@ -25,6 +29,20 @@ export class Cinematic {
         // Renderer
         this._renderer = new THREE.WebGLRenderer({ canvas: this._canvas });
         this._renderer.setSize(window.innerWidth, window.innerHeight);
+
+        this._renderer.antialias = true;
+        this._renderer.shadowMap.enabled = true;
+
+        this._renderer.toneMapping = THREE.NeutralToneMapping;
+            //THREE.NoToneMapping;
+            //THREE.LinearToneMapping;
+            //THREE.ReinhardToneMapping;
+            //THREE.CineonToneMapping;
+            //THREE.ACESFilmicToneMapping;
+            //THREE.AgXToneMapping;
+            //THREE.NeutralToneMapping;
+            //THREE.CustomToneMapping;
+        this._renderer.toneMappingExposure = 1.0;
 
         this._fov = 22.89519413064574;
         this._aspect = 16 / 9;
@@ -54,19 +72,57 @@ export class Cinematic {
         this._scene.add(this._skybox);
 
         // Lights
-        this._ambientLight = new THREE.AmbientLight(0xEDEDED, 0.8);
+        this._ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.0);
         this._scene.add(this._ambientLight);
 
-        this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
-        this._directionalLight.position.set(10, 11, 7);
+        this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.5);
+        this._directionalLight.position.set(10, 12, 7);
+        
+        this._directionalLight.castShadow = true;
+        this._directionalLight.shadow.bias = -0.0005;
+        this._directionalLight.shadow.normalBias = 0.05;
+        
+        this._directionalLight.shadow.mapSize.width = 2048;
+        this._directionalLight.shadow.mapSize.height = 2048;
+        this._directionalLight.shadow.camera.near = 0.5;
+        this._directionalLight.shadow.camera.far = 50;
+
+        this._directionalLight.shadow.camera.left = -25;
+        this._directionalLight.shadow.camera.right = 25;
+        this._directionalLight.shadow.camera.bottom = -25;
+        this._directionalLight.shadow.camera.top = 25;
+
         this._scene.add(this._directionalLight);
+
+        const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1.0);
+        this._scene.add(hemisphereLight);
+
+        const portalLight = new THREE.PointLight(0x00FF00, 3.0);
+        portalLight.position.set(-10.0052, 0.75, 5.7884);
+        this._scene.add(portalLight);
 
         // Controls
         //this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 
         // map
         this._cinematicMap = this._parent._modelManager.GetCloneGlbModelByName('map_cinematic_full.glb');
+
+        // portal material
+        this._portalMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: {
+                    value: 0
+                },
+            },
+            vertexShader: PORTAL._VS,
+            fragmentShader: PORTAL._FS,
+        });
+
+        this._cinematicMap.children[2].material = this._portalMaterial;
+
         this._scene.add(this._cinematicMap);
+
+        this._renderer.compile(this._scene, this._camera);
 
         // flowers, mushrooms, threes, rocks
         this._LoadEnvironmentModels('flower.glb', ENV.flowersAttributes);
@@ -83,8 +139,6 @@ export class Cinematic {
 
         // Bears [0] - main1, [1] - main2, [2..n] - other
         this._CreateBearsArray();
-
-        this._bears[2].StartRunning(); // test
 
         this._cinematicFSM = new CinematicFSM(this);
         this._cinematicFSM.SetState('part1');
@@ -115,23 +169,16 @@ export class Cinematic {
     }
 
     _CreateBearsArray() {
-        const bearsAttributes = [
-            // color,              position,             orientation
-            [{ r: 1, g: 0, b: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: Math.PI / 2, z: 0, order: 'XYZ' }],
-            [{ r: 0, g: 1, b: 0 }, { x: -1, y: 0, z: -1 }, { x: 0, y: Math.PI / 2, z: 0, order: 'XYZ' }],
-            [{ r: 0, g: 1, b: 1 }, { x: -8, y: 0, z: 6 }, { x: 0, y: Math.PI / 2, z: 0, order: 'XYZ' }],
-        ];
-
         const modelManager = this._parent._modelManager;
         const bears = this._bears;
         const scene = this._scene;
 
-        for (let i = 0; i < bearsAttributes.length; i++) {
+        for (let i = 0; i < BEARS.bearsAttributes.length; i++) {
             const model = modelManager.GetCloneGlbModelByName('bear.glb');
   
-            const color = new THREE.Vector3(bearsAttributes[i][0].r, bearsAttributes[i][0].g, bearsAttributes[i][0].b);
-            const position = new THREE.Vector3(bearsAttributes[i][1].x, bearsAttributes[i][1].y, bearsAttributes[i][1].z);
-            const orientation = new THREE.Euler(bearsAttributes[i][2].x, bearsAttributes[i][2].y, bearsAttributes[i][2].z, bearsAttributes[i][2].order);
+            const position = new THREE.Vector3(BEARS.bearsAttributes[i][0].x, BEARS.bearsAttributes[i][0].z, -BEARS.bearsAttributes[i][0].y);
+            const color = new THREE.Vector3(BEARS.bearsAttributes[i][1].r, BEARS.bearsAttributes[i][1].g, BEARS.bearsAttributes[i][1].b);
+            const orientation = new THREE.Euler(0, Math.PI / 2, 0, 'XYZ');
 
             const character = new Character(model, color, 'Mat.base', position, orientation);
 
@@ -217,6 +264,9 @@ export class Cinematic {
 
         const delta = this._clock.getDelta();
 
+        this._uTime += delta;
+        this._portalMaterial.uniforms.uTime.value = this._uTime;
+
         if (this._cinematicFSM) {
             this._cinematicFSM.Update(delta);
         }
@@ -233,7 +283,6 @@ export class Cinematic {
             }
         });
 
-        //this._controls.update();
         if (this._camera) {
             this._renderer.render(this._scene, this._camera);
         }

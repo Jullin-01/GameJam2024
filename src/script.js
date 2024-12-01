@@ -34,12 +34,24 @@ function handleInteraction() {
     document.getElementById("div-canvas").style.display = "flex";
 
 
+/*    
     // Timer for text appearance
-    setTimeout(() => {
+      setTimeout(() => {
         const greetings = document.getElementById("greetings");
         greetings.style.opacity = '1'; 
         setTimeout(() => {
           greetings.style.opacity = '0'; 
         }, 7000);
       }, 15000);
+*/
 }
+
+document.getElementById("button-start").addEventListener("click", function () {
+  const registrationWin = document.getElementById("registration");
+  const gameWin = document.getElementById("game");
+  const canvasWin = document.getElementById("canvas");
+
+  registrationWin.style.display = "none";
+  canvasWin.style.display = "none";
+  gameWin.style.display = "flex";
+});

@@ -33,6 +33,21 @@ export class ModelManager {
             model.cameras = glb.cameras;
         }
 
+        model.traverse((child) => {
+            if (child.isMesh) {
+                
+                if (name == 'bear.glb') {
+                    child.castShadow = true;
+                }
+                else if (name != 'flower.glb' &&
+                         name != 'mushroom.glb' &&
+                         child.name != 'magical_glow') {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            }
+        });
+
         this._map.set(name, model);
 
         return this.CloneGlbModel(model);
