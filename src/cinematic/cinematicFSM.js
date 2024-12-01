@@ -242,7 +242,7 @@ class _Part5 extends State { // "Game Jam 2024"
         {
             this._actionIndex++;
         } 
-        else if (this._actionIndex == 1) { // 
+        else if (this._actionIndex == 1) { 
             this._actionIndex++;
             for (let i = 0; i < this._bears.length; i++) {
                 this._bears[i]._model.position.set(0, 0, 0);
@@ -254,7 +254,7 @@ class _Part5 extends State { // "Game Jam 2024"
             this._greetings.style.opacity = '0';         
         }
 
-        if (this._time >= 10) {
+        if (this._time >= 7.5) {
             this._greetings.style.display = 'none';         
         }
     }
