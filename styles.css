@@ -53,7 +53,7 @@ body {
 }
 
 .menu-button {
-  background: linear-gradient(300deg, #94c9f4, #5178a6);
+  background: linear-gradient(150deg, #FFDE00 , #fb6900);
   border: none;
  /* border-radius: 50px; */
   padding: 15px;
@@ -63,7 +63,8 @@ body {
   font-weight: 800;
   margin: 10px 0;
   text-shadow: 0 3px 5px rgba(165, 167, 168, 0.98);
-  clip-path: polygon(5% 0%, 95% 0%, 100% 15%, 100% 85%, 95% 100%, 5% 100%, 0% 85%, 0% 15%);
+  /* clip-path: polygon(5% 0%, 95% 0%, 100% 15%, 100% 85%, 95% 100%, 5% 100%, 0% 85%, 0% 15%); */
+  border-radius: 5px;
   box-shadow: inset 0 2px 0 #ffffff, inset 0 -2px 0 #b0b0b0,
     0 8px 15px rgba(0, 0, 0, 0.3);
   cursor: pointer;
@@ -150,13 +151,14 @@ body {
 /* Registration window styles */
 
 #registration {
-  background: linear-gradient(to bottom, #74caff, #76b5dc);
   height: 100vh;
-  width: 100%;
+  width: 20%;
   display: flex;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
   flex-direction: column;
+  z-index: 3;
+  margin-bottom: 5%;
 
   display: none;
 }
@@ -165,8 +167,8 @@ body {
   height: 30px;
   width: 200px;
   margin-bottom: 10px;
-  background: #fafafa94;
-  color: #787a7c;
+  background: #f4d87b94;
+  color: #4f4d4d;
   font-size: 16px;
   font-weight: 800;
   background-clip: padding-box;
@@ -178,11 +180,11 @@ body {
 
 .player-name::placeholder {
   opacity: 0.8;
-  color: #787a7c;
+  color: #4f4d4d;
   font-size: 16px;
 }
 
-.button-start {
+#button-start {
   height: 50px;
   width: 200px;
   margin: 0;
@@ -239,5 +241,5 @@ body {
     4px 4px 8px rgb(251, 0, 0),   /* level 4 */
     5px 5px 10px red;  /* Maximum depth */
 
-  z-index: 2;
+  z-index: 4;
 }
