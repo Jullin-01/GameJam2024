@@ -250,12 +250,13 @@ class _Part5 extends State { // "Game Jam 2024"
         };
         } 
 
-        if (this._time >= 5) {
-            this._greetings.style.opacity = '0';         
+        if (this._time >= 6) {
+            this._greetings.style.opacity = '0';      
+            this._greetings.style.display = 'none';   
         }
 
-        if (this._time >= 7.5) {
-            this._greetings.style.display = 'none';         
-        }
+//        if (this._time >= 7.5) {
+//           this._greetings.style.display = 'none';         
+//        }
     }
 };

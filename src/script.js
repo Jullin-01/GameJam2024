@@ -46,12 +46,24 @@ function handleInteraction() {
 */
 }
 
-document.getElementById("button-start").addEventListener("click", function () {
-  const registrationWin = document.getElementById("registration");
-  const gameWin = document.getElementById("game");
-  const canvasWin = document.getElementById("canvas");
+const registrationWin = document.querySelector('#registration');
+const gameWin = document.querySelector('#game');
+const input = document.querySelector('.player-name');
+const startButton = document.querySelector('#button-start');
+const greeting = document.querySelector('#greeting');
+const canvasWin = document.getElementById("canvas");
 
-  registrationWin.style.display = "none";
+
+startButton.addEventListener('click', () => {
+  const playerName = input.value.trim(); // Getting the username
+
+      if (playerName) {
+        greeting.textContent = `Привет, ${playerName}!`; // Updating the greeting
+      } else {
+        greeting.textContent = 'Привет, незнакомец!'; // Handling empty input
+      }
+
+  registrationWin.style.display = 'none';
+  gameWin.style.display = 'flex';
   canvasWin.style.display = "none";
-  gameWin.style.display = "flex";
 });
