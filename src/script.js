@@ -28,7 +28,7 @@ function handleInteraction() {
 
     console.log('Start cinematic');
     _ResourceLoader._audioManager.InitAudioPlayer();
-    //_ResourceLoader._audioManager.StartPlayback('GameSketch1.2.wav', false);
+    _ResourceLoader._audioManager.StartPlayback('GameSketch1.wav', false);
 
     document.getElementById("loading").style.display = "none";
     document.getElementById("div-canvas").style.display = "flex";
