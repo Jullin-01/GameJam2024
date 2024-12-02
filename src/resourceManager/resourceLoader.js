@@ -2,8 +2,7 @@ import { AudioManager } from './audioManager.js';
 import { ModelManager } from './modelManager.js';
 
 let audioFiles = [
-    'GameSketch1.wav',
-    'GameSketch1.2.wav'
+    'GameSketch1.4.mp3'
 ];
 
 let glbFiles = [
