@@ -265,6 +265,30 @@ body {
   z-index: 4;
 }
 
-#greeting {
+#game-finish-text {
   margin-bottom: 20px;
+}
+
+#sound,
+#fullscreen {
+    display: block;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    right: 10px;
+    top: 2%;
+    padding: 9px 9px;
+    z-index: 1;
+}
+
+#sound {
+  right: 70px;
+}
+
+#sound-off {
+  display: none;
+}
+
+#fullscreen-off {
+  display: none;
 }
