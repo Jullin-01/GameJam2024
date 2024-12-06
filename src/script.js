@@ -80,9 +80,9 @@ startButton.addEventListener('click', () => {
   const playerName = input.value.trim(); // Getting the username
 
       if (playerName) {
-        greeting.textContent = `Привет, ${playerName}!`; // Updating the greeting
+        greeting.textContent = `Поздравляем, ${playerName}!`; // Updating the greeting
       } else {
-        greeting.textContent = 'Привет, незнакомец!'; // Handling empty input
+        greeting.textContent = 'Поздравляем, незнакомец!'; // Handling empty input
       }
 
   registrationWin.style.display = 'none';
