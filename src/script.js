@@ -1,14 +1,21 @@
 import {Cinematic} from './cinematic/cinematic.js';
+import {Game} from './game/game.js';
 import {ResourceLoader} from './resourceManager/resourceLoader.js';
+import {Viewport} from './common/viewport.js';
 import './styles.css';
 
-let _APP = null;
 let _ResourceLoader = null;
+let _Viewport = null;
+let _Cinematic = null;
+let _Game = null;
+
+let _APP = {_ResourceLoader, _Viewport, _Cinematic, _Game};
 
 window.addEventListener('DOMContentLoaded', () => {
-    _ResourceLoader = new ResourceLoader();
+  _APP._ResourceLoader = new ResourceLoader();
+  _APP._Viewport = new Viewport();
 
-    _ResourceLoader.AllLoad(() => {
+  _APP._ResourceLoader.AllLoad(() => {
         const message = document.getElementById("message");
         message.textContent = "Нажмите любую кнопку";
         
@@ -24,11 +31,19 @@ function handleInteraction() {
     document.removeEventListener("click", handleInteraction);
     document.removeEventListener("keydown", handleInteraction);
 
-    _APP = new Cinematic(_ResourceLoader);
+    _APP._Cinematic = new Cinematic(_APP);
+    _APP._Game = new Game(_APP);
 
+    
+  if (0) {
     console.log('Start cinematic');
-    _ResourceLoader._audioManager.InitAudioPlayer();
-    _ResourceLoader._audioManager.StartPlayback('GameSketch1.4.mp3', false);
+    _APP._Cinematic.StartRendering();
+    _APP._ResourceLoader._audioManager.InitAudioPlayer();
+    _APP._ResourceLoader._audioManager.StartPlayback('GameSketch1.4.mp3', false);
+  }
+  else {
+    _APP._Game.StartRendering();
+  }
 
     document.getElementById("loading").style.display = "none";
     document.getElementById("div-canvas").style.display = "flex";
@@ -55,6 +70,13 @@ const canvasWin = document.getElementById("canvas");
 
 
 startButton.addEventListener('click', () => {
+
+  _APP._Cinematic.StopRendering();
+  _APP._Game.StartRendering();
+  
+  registrationWin.style.display = 'none';
+
+  /*  
   const playerName = input.value.trim(); // Getting the username
 
       if (playerName) {
@@ -66,4 +88,5 @@ startButton.addEventListener('click', () => {
   registrationWin.style.display = 'none';
   gameWin.style.display = 'flex';
   canvasWin.style.display = "none";
+*/
 });

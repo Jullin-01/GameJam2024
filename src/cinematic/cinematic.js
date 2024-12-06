@@ -10,39 +10,23 @@ export class Cinematic {
     constructor(parent) {
         console.log('Cinematic constructor');
         this._parent = parent;
-        this._is_rendering_enabled = false;
-        
+        this._resourceLoader = parent._ResourceLoader;
+        this._viewport = parent._Viewport;       
         this._cinematicFSM = null;
-
         this._mixersArray = [];
-        this._bears = [];
-        
+        this._bears = [];       
         this._uTime = 0;
+
+        this._isRenderingEnabled = false;
 
         this._Init();
     }
 
     _Init() {
         this._scene = new THREE.Scene();
-        this._canvas = document.getElementById('canvas');
 
         // Renderer
-        this._renderer = new THREE.WebGLRenderer({ canvas: this._canvas });
-        this._renderer.setSize(window.innerWidth, window.innerHeight);
-
-        this._renderer.antialias = true;
-        this._renderer.shadowMap.enabled = true;
-
-        this._renderer.toneMapping = THREE.NeutralToneMapping;
-            //THREE.NoToneMapping;
-            //THREE.LinearToneMapping;
-            //THREE.ReinhardToneMapping;
-            //THREE.CineonToneMapping;
-            //THREE.ACESFilmicToneMapping;
-            //THREE.AgXToneMapping;
-            //THREE.NeutralToneMapping;
-            //THREE.CustomToneMapping;
-        this._renderer.toneMappingExposure = 1.0;
+        this._renderer = this._viewport.GetRenderer();
 
         this._fov = 22.89519413064574;
         this._aspect = 16 / 9;
@@ -55,8 +39,6 @@ export class Cinematic {
             1000
         );
         this._scene.add(this._camera);
-
-        this._OnWindowResize();
 
         // Skybox
         this._skyboxMaterialArray = [
@@ -105,7 +87,7 @@ export class Cinematic {
         //this._controls = new OrbitControls(this._camera, this._renderer.domElement);
 
         // map
-        this._cinematicMap = this._parent._modelManager.GetCloneGlbModelByName('map_cinematic_full.glb');
+        this._cinematicMap = this._resourceLoader._modelManager.GetCloneGlbModelByName('map_cinematic_full.glb');
 
         // portal material
         this._portalMaterial = new THREE.ShaderMaterial({
@@ -143,17 +125,23 @@ export class Cinematic {
         this._cinematicFSM = new CinematicFSM(this);
         this._cinematicFSM.SetState('part1');
 
-        // Event Listener
-        window.addEventListener('resize', () => this._OnWindowResize());
-        //window.addEventListener('click', () => this._SwitchCamera());
-
-        // Animate
         this._clock = new THREE.Clock();
+    }
+
+    StartRendering() {
+        this._viewport._isCinematic = true;
+        this._viewport._camera = null;
+        this._viewport.Resize();
+        this._isRenderingEnabled = true;
         this._Animate();
     }
 
+    StopRendering() {
+        this._isRenderingEnabled = false;
+    }
+
     _LoadEnvironmentModels(modelName, attr) {
-        const modelManager = this._parent._modelManager;
+        const modelManager = this._resourceLoader._modelManager;
         const scene = this._scene;
 
         for (let i = 0; i < attr.length; i++) {
@@ -169,7 +157,7 @@ export class Cinematic {
     }
 
     _CreateBearsArray() {
-        const modelManager = this._parent._modelManager;
+        const modelManager = this._resourceLoader._modelManager;
         const bears = this._bears;
         const scene = this._scene;
 
@@ -187,40 +175,6 @@ export class Cinematic {
 
             bears.push(character);
         }
-    }
-
-    _OnWindowResize() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
- 
-        const windowAspect = width / height;
-
-        if (windowAspect > this._aspect) {
-            // The screen is wider than necessary - add stripes on the sides
-            const renderHeight = height;
-            const renderWidth = renderHeight * this._aspect;
-            this._renderer.setSize(renderWidth, renderHeight);
-
-            // Center the canvas horizontally
-            this._renderer.domElement.style.marginLeft = `${(width - renderWidth) / 2}px`;
-            this._renderer.domElement.style.marginTop = `0px`;
-        } else {
-            // The screen is higher than necessary - add stripes at the top and bottom
-            const renderWidth = width;
-            const renderHeight = renderWidth / this._aspect;
-            this._renderer.setSize(renderWidth, renderHeight);
-
-            // Center the canvas vertically
-            this._renderer.domElement.style.marginTop = `${(height - renderHeight) / 2}px`;
-            this._renderer.domElement.style.marginLeft = `0px`;
-        }
- 
-        // Updating the location of the side camera
-        //this._camera.aspect = width / height;
-        //this._camera.updateProjectionMatrix();
-
-        // Update render sizes
-        //this._renderer.setSize(width, height);
     }
 
     _CreateGradientTexture(color1, color2) {
@@ -260,31 +214,33 @@ export class Cinematic {
     }
 
     _Animate() {
-        requestAnimationFrame(this._Animate.bind(this));
+        if (this._isRenderingEnabled) {
+            requestAnimationFrame(this._Animate.bind(this));
 
-        const delta = this._clock.getDelta();
+            const delta = this._clock.getDelta();
 
-        this._uTime += delta;
-        this._portalMaterial.uniforms.uTime.value = this._uTime;
+            this._uTime += delta;
+            this._portalMaterial.uniforms.uTime.value = this._uTime;
 
-        if (this._cinematicFSM) {
-            this._cinematicFSM.Update(delta);
-        }
-
-        this._bears.forEach((bear) => {
-            if(bear) {
-                bear.Update(delta);
+            if (this._cinematicFSM) {
+                this._cinematicFSM.Update(delta);
             }
-        });
 
-        this._mixersArray.forEach((mixer) => {
-            if (mixer) {
-                mixer.update(delta);
+            this._bears.forEach((bear) => {
+                if (bear) {
+                    bear.Update(delta);
+                }
+            });
+
+            this._mixersArray.forEach((mixer) => {
+                if (mixer) {
+                    mixer.update(delta);
+                }
+            });
+
+            if (this._camera) {
+                this._renderer.render(this._scene, this._camera);
             }
-        });
-
-        if (this._camera) {
-            this._renderer.render(this._scene, this._camera);
         }
     }
 }

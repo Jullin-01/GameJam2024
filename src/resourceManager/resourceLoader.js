@@ -1,5 +1,6 @@
 import { AudioManager } from './audioManager.js';
 import { ModelManager } from './modelManager.js';
+import { ImageManager } from './imageManager.js';
 
 let audioFiles = [
     'GameSketch1.4.mp3'
@@ -18,19 +19,28 @@ let glbFiles = [
     'rock3.glb',
     'rock4.glb',
     'rock5.glb',
-    'map_cinematic_full.glb'
+    'map_cinematic_full.glb',
+    'mapGame.glb'
+];
+
+let imageFiles = [
+    'cupcake.png',
+    'cookieWelcome.png',
+    'cookieStop.png'
 ];
 
 export class ResourceLoader {
     constructor() {
         this._audioManager = null;
         this._modelManager = null;
+        this._imageManager = null;
         this._Init();
     }
 
     _Init() {
         this._audioManager = new AudioManager();
         this._modelManager = new ModelManager();
+        this._imageManager = new ImageManager();
     }
 
     async AllLoad(callback) {
@@ -44,6 +54,12 @@ export class ResourceLoader {
         for (let i = 0; i < glbFiles.length; i++)
         {
             await this._modelManager.LoadGlbModel(glbFiles[i]);
+        }
+
+        // image
+        for (let i = 0; i < imageFiles.length; i++)
+        {
+            this._imageManager.LoadImage(imageFiles[i]);
         }
 
         callback();
