@@ -65,7 +65,7 @@ const registrationWin = document.querySelector('#registration');
 const gameWin = document.querySelector('#game');
 const input = document.querySelector('.player-name');
 const startButton = document.querySelector('#button-start');
-const greeting = document.querySelector('#greeting');
+const gameFinishText = document.querySelector('#game-finish-text');
 const canvasWin = document.getElementById("canvas");
 
 
@@ -80,9 +80,9 @@ startButton.addEventListener('click', () => {
   const playerName = input.value.trim(); // Getting the username
 
       if (playerName) {
-        greeting.textContent = `Поздравляем, ${playerName}!`; // Updating the greeting
+        gameFinishText.textContent = `Поздравляем, ${playerName}!`; // Updating 
       } else {
-        greeting.textContent = 'Поздравляем, незнакомец!'; // Handling empty input
+        gameFinishText.textContent = 'Поздравляем, незнакомец!'; // Handling empty input
       }
 
   registrationWin.style.display = 'none';
