@@ -5,6 +5,7 @@ import { Rigidbody } from '../common/rigidbody.js';
 import { PlayerCamera } from './player/playerCamera.js';
 import * as ENV from './environmentPositionGame.js';
 import * as WALLS from './wallPosition.js';
+import * as GATES from './gatePosition.js';
 
 export class Game {
     static worldColliders = [];
@@ -21,6 +22,10 @@ export class Game {
 
         this._player = null;
         this._playerCamera = null;
+
+        this._score = 0;
+
+        this._gateMeshs = [];
 
         this._Init();
     }
@@ -92,21 +97,7 @@ export class Game {
 
         this._playerCamera = new PlayerCamera(this._camera, this._player);
 
-        this._CreateLabyrinth();
-
-        const cookieMan = this._CreateCookieManClose();
-        this._scene.add(cookieMan);
-
-        const cupcake = this._CreateCupcake();
-        this._scene.add(cupcake);
-
-        this._goldPlus = this._CreateGoldPlus();
-        this._goldPlus.position.set(7.25, 0.25, -7.35);
-        this._goldPlus.defaultY = this._goldPlus.position.y;
-        this._scene.add(this._goldPlus);
-        
-        this._wall = this._CreateWall(2, 0.75, 0.5);
-        //this._scene.add(this._wall);
+        this._CreateLabyrinth();      
 
         this._renderer.compile(this._scene, this._camera);
 
@@ -164,6 +155,17 @@ export class Game {
 
         this._CreateWalls();
         this._CreateGates();
+
+        const cookieMan = this._CreateCookieManClose();
+        this._scene.add(cookieMan);
+
+        const cupcake = this._CreateCupcake();
+        this._scene.add(cupcake);
+
+        this._goldPlus = this._CreateGoldPlus();
+        this._goldPlus.position.set(7.25, 0.25, -7.35);
+        this._goldPlus.defaultY = this._goldPlus.position.y;
+        this._scene.add(this._goldPlus);
     }
 
     _CreateWalls() {
@@ -186,6 +188,7 @@ export class Game {
             };
 
             const wallCollider = {
+                name: "wallCollider" + i,
                 type: "Box",
                 obb: obb,
                 object: model
@@ -197,32 +200,39 @@ export class Game {
 
     _CreateGates() {
         let gate;
-        const gatesAttributes = [
-            // position,                     orientation     type
-            [{ x: -5.2, y: 0.5, z: -5.2 }, { rotY: 0 }, { type: 'Up' }], // gateUp 1
-            [{ x: -3.15, y: 0.5, z: 0 }, { rotY: 0 }, { type: 'Up' }], // gateUp 2
-            [{ x: -3.15, y: 0.5, z: -7.35 }, { rotY: 0 }, { type: 'Up' }], // gateUp 3
-            [{ x: 1.05, y: 0.5, z: 5.25 }, { rotY: Math.PI / 2 }, { type: 'Up' }], // gateUp 4
-            [{ x: 5.25, y: 0.5, z: 3.15 }, { rotY: 0 }, { type: 'Up' }], // gateUp 5
-            [{ x: -1.05, y: 0.5, z: -7.35 }, { rotY: 0 }, { type: 'Up' }], // gateUp 6
-            [{ x: 3.15, y: 0.5, z: -1.05 }, { rotY: Math.PI / 2 }, { type: 'Up' }], // gateUp 7
-            [{ x: -7.3, y: 0.5, z: 0 }, { rotY: 0 }, { type: 'Down' }], // gateDown 1
-            [{ x: -7.3, y: 0.5, z: 4.2 }, { rotY: 0 }, { type: 'Down' }], // gateDown 2
-            [{ x: -3.15, y: 0.5, z: 6.25 }, { rotY: 0 }, { type: 'Down' }], // gateDown 3
-            [{ x: 5.25, y: 0.5, z: 0 }, { rotY: 0 }, { type: 'Down' }], // gateDown 4
-            [{ x: 7.25, y: 0.5, z: -2.1 }, { rotY: 0 }, { type: 'Down' }], // gateDown 5
-            [{ x: 7.25, y: 0.5, z: -6.25 }, { rotY: 0 }, { type: 'Down' }], // gateDown 6
-            [{ x: 4.2, y: 0.5, z: -7.3 }, { rotY: Math.PI / 2 }, { type: 'Down' }], // gateDown 7
-        ];
+        const attr = GATES.gatesAttributes;
 
         const gateUp = this._CreateGateUp();
         const gateDown = this._CreateGateDown();
 
-        for (let i = 0; i < gatesAttributes.length; i++) {
-            gate = gatesAttributes[i][2].type == 'Up' ? gateUp.clone() : gateDown.clone();
-            gate.position.set(gatesAttributes[i][0].x, gatesAttributes[i][0].y, gatesAttributes[i][0].z);
-            gate.rotateY(gatesAttributes[i][1].rotY);
+        for (let i = 0; i < attr.length; i++) {
+            gate = attr[i][2].type == 'Up' ? gateUp.clone() : gateDown.clone();
+            gate.position.set(attr[i][0].x, attr[i][0].y, attr[i][0].z);
+            gate.rotateY(attr[i][1].rotY);
             this._scene.add(gate);
+
+            this._gateMeshs.push(gate);
+
+            if (attr[i][2].type == 'Down') {
+                const obb = {
+                    center: gate.position.clone(),
+                    halfSize: new THREE.Vector3(0.5, 0.5, 0.01),
+                    axes: [
+                        new THREE.Vector3(1, 0, 0).applyQuaternion(gate.quaternion),
+                        new THREE.Vector3(0, 1, 0).applyQuaternion(gate.quaternion),
+                        new THREE.Vector3(0, 0, 1).applyQuaternion(gate.quaternion)
+                    ]
+                };
+    
+                const gateDownCollider = {
+                    name: "gateDownCollider" + i,
+                    type: "Box",
+                    obb: obb,
+                    object: gate
+                };
+    
+                Game.worldColliders.push(gateDownCollider);
+            }
         }
     }
 
@@ -258,7 +268,7 @@ export class Game {
 
     _CreateWall(width, height, depth) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshLambertMaterial({ /*color: 0x00ff00*/ map: this._CreateGradientTexture('#9E7216', '#9F7023') });
+        const material = new THREE.MeshLambertMaterial({ /*color: 0x00ff00*/ map: this._CreateGradientTexture('#99ff00', '#6bb300') });
         const wall = new THREE.Mesh(geometry, material);
         wall.castShadow = true;
         wall.receiveShadow = true;
@@ -308,7 +318,7 @@ export class Game {
         return this._CreateCookieMan(true);
     }
 
-    _CreateCookieManClose() {
+    _CreateCookieManClose() {      
         return this._CreateCookieMan(false);
     }
 
@@ -320,6 +330,28 @@ export class Game {
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotateY(-Math.PI / 2);
         plane.position.set(8.7, 0.5, 1.05);
+
+        if (!isOpen) {
+            const obb = {
+                center: plane.position.clone(),
+                halfSize: new THREE.Vector3(0.5, 0.5, 0.01),
+                axes: [
+                    new THREE.Vector3(1, 0, 0).applyQuaternion(plane.quaternion),
+                    new THREE.Vector3(0, 1, 0).applyQuaternion(plane.quaternion),
+                    new THREE.Vector3(0, 0, 1).applyQuaternion(plane.quaternion)
+                ]
+            };
+
+            const cookieManCollider = {
+                name: "cookieManCollider",
+                type: "Box",
+                obb: obb,
+                object: plane
+            };
+
+            Game.worldColliders.push(cookieManCollider);
+        }
+
         return plane;
     }
 
@@ -379,6 +411,38 @@ export class Game {
         }        
     }
 
+    _PlayerCollisionСheck() {
+        let tmp = new THREE.Vector3();
+
+        for (let i = 0; i < this._gateMeshs.length; i++) {
+            if (this._gateMeshs[i].visible) {
+                tmp.copy(this._gateMeshs[i].position);
+                tmp.y -= 0.5;
+                
+                if (this._player._model.position.distanceTo(tmp) < 0.4) {
+                    if (GATES.gatesAttributes[i][2].type == 'Up') {
+                        this._gateMeshs[i].visible = false;
+                        this._score++;
+                        console.log(this._score);
+                    } else if (this._score > 0) {
+                        this._gateMeshs[i].visible = false;
+                        this._score--;
+                        
+                        for (let j = 0; j < Game.worldColliders.length; j++) {
+                            if (Game.worldColliders[j].obb.center.equals(this._gateMeshs[i].position)) {
+                                Game.worldColliders.splice(j, 1);
+                                break;
+                            }
+                        }
+
+                        console.log(this._score);
+                    }
+                    
+                }
+            }
+        }
+    }
+
     _Animate() {
         if (this._isRenderingEnabled) {
             requestAnimationFrame(this._Animate.bind(this));
@@ -390,10 +454,10 @@ export class Game {
                 this._goldPlus.rotateY((-2 * Math.PI * delta) / 8);
                 this._goldPlus.position.y = this._goldPlus.defaultY + Math.sin(this._clock.getElapsedTime() * 2) * 0.025;
 
-                this._wall.rotateY((2 * Math.PI * delta) / 8);
-
                 if (this._player) {
                     this._player.Update(delta);
+
+                    this._PlayerCollisionСheck();
                 }
 
                 this._playerCamera.Update(delta);
