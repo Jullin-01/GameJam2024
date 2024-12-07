@@ -6,6 +6,7 @@ export class AudioManager {
         this._audioListener = null;
         this._sound = null;
         this._loader = null;
+        this._isVolumeOn = true;
         this._Init();
     }
 
@@ -42,20 +43,55 @@ export class AudioManager {
 
     InitAudioPlayer() {
         this._audioListener = new THREE.AudioListener();
-        this._sound = new THREE.Audio(this._audioListener);
+        this._backgroundSound = new THREE.Audio(this._audioListener);
+        this._gameObjSound = new THREE.Audio(this._audioListener);
     }
 
-    StartPlayback(name, loopFlag) {
-        if (this._sound) {
-            this._sound.setBuffer(this._map.get(name));
-            this._sound.setLoop(loopFlag);
-            this._sound.play();
+    SwitchVolume() {
+        this._isVolumeOn = !this._isVolumeOn;
+        if (this._isVolumeOn)
+        {
+            this.SetVolumeOn();
+        } else {
+            this.SetVolumeOff();
+        }
+
+        return this._isVolumeOn;
+    }
+
+    SetVolumeOn() {
+        this._backgroundSound.setVolume(1);
+        this._gameObjSound.setVolume(1)
+    }
+
+    SetVolumeOff() {
+        this._backgroundSound.setVolume(0);
+        this._gameObjSound.setVolume(0)
+    }
+
+    StartPlaybackBackground(name, loopFlag) {
+        if (this._backgroundSound) {
+            this._backgroundSound.setBuffer(this._map.get(name));
+            this._backgroundSound.setLoop(loopFlag);
+            this._backgroundSound.play();
         }
     }
 
-    StopPlayback() {
-        if (this._sound) {
-            this._sound.stop();
+    StopPlaybackBackground() {
+        if (this._backgroundSound) {
+            this._backgroundSound.stop();
+        }
+    }
+
+    PlayGameObjSound(name) {
+        if (this._gameObjSound) {
+            if (this._gameObjSound.isPlaying) {
+                this._gameObjSound.stop();
+            }
+
+            this._gameObjSound.setBuffer(this._map.get(name));
+            this._gameObjSound.setLoop(false);
+            this._gameObjSound.play();
         }
     }
 }

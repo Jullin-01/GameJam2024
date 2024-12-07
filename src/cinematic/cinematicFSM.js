@@ -14,6 +14,7 @@ export class CinematicFSM extends FiniteStateMachine {
         this._AddState('part3', _Part3); // "green bear and orange bear agree to run away together"
         this._AddState('part4', _Part4); // "many bears are running from the portal to this world"
         this._AddState('part5', _Part5); // "Game Jam 2024"
+        this._AddState('skipCinematic', _SkipCinematic); // skip cinematic
     }
 };
 
@@ -246,8 +247,10 @@ class _Part5 extends State { // "Game Jam 2024"
             this._actionIndex++;
             for (let i = 0; i < this._bears.length; i++) {
                 this._bears[i]._model.position.set(0, 0, 0);
-                this._registration.style.display = 'flex';
-        };
+            }
+            this._registration.style.display = 'flex';
+
+            this._parent._parent._utils.removeHandleSkipCinematic();
         } 
 
         if (this._time >= 6) {
@@ -258,5 +261,39 @@ class _Part5 extends State { // "Game Jam 2024"
 //        if (this._time >= 7.5) {
 //           this._greetings.style.display = 'none';         
 //        }
+    }
+};
+
+class _SkipCinematic extends State {
+    constructor(parent) {
+        super(parent, 'skipCinematic');
+
+        this._bears = this._parent._parent._bears;
+        this._greetings = document.getElementById("greetings");
+        this._registration = document.getElementById("registration");
+    }
+
+    Enter(prevState) {
+        console.log("Enter skipCinematic");
+        this._time = 0;
+
+        this._parent._parent._resourceLoader._audioManager.StopPlaybackBackground();
+
+        this._greetings.style.display = 'none';
+
+        for (let i = 0; i < this._bears.length; i++) {
+            this._bears[i]._model.position.set(0, 0, 0);
+        }
+        
+        this._registration.style.display = 'flex';
+
+        this._parent._parent._SwitchCamera(2);
+    }
+
+    Exit() {
+        console.log("Exit skipCinematic");
+    }
+
+    Update(timeElapsedSec) {
     }
 };

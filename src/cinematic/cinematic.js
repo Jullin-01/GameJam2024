@@ -11,7 +11,8 @@ export class Cinematic {
         console.log('Cinematic constructor');
         this._parent = parent;
         this._resourceLoader = parent._ResourceLoader;
-        this._viewport = parent._Viewport;       
+        this._viewport = parent._Viewport;     
+        this._utils = parent._Utils;  
         this._cinematicFSM = null;
         this._mixersArray = [];
         this._bears = [];       
@@ -126,6 +127,10 @@ export class Cinematic {
         this._cinematicFSM.SetState('part1');
 
         this._clock = new THREE.Clock();
+    }
+
+    SkipCinematic() {
+        this._cinematicFSM.SetState('skipCinematic');
     }
 
     StartRendering() {

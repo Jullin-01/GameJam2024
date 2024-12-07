@@ -23,9 +23,15 @@ export class Game {
         this._player = null;
         this._playerCamera = null;
 
-        this._score = 0;
+        this._score = {rating: 0, cupcake: 0, goldPlus: 0};
 
-        this._gateMeshs = [];
+        this._mesh = {
+            cupcake: null,
+            goldPlus: null,
+            cookieWelcome: null,
+            cookieStop: null,
+            gateMeshs: []
+        };
 
         this._Init();
     }
@@ -69,7 +75,7 @@ export class Game {
         this._scene.add(this._ambientLight);
 
         this._directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.5);
-        this._directionalLight.position.set(10, 12, 7);
+        this._directionalLight.position.set(10, 17, 7);
         
         this._directionalLight.castShadow = true;
         this._directionalLight.shadow.bias = -0.0005;
@@ -91,7 +97,7 @@ export class Game {
         this._scene.add(hemisphereLight);
 
         this._player = this._CreatePlayer();
-        this._scene.add(this._player._model.sphereMesh);
+        //this._scene.add(this._player._model.sphereMesh); // bear shield))
         this._scene.add(this._player._model);
         this._mixersArray.push(this._player._model.mixer);
 
@@ -109,6 +115,9 @@ export class Game {
         this._viewport._camera = this._camera;
         this._viewport.Resize();
         this._isRenderingEnabled = true;
+
+        this._resourceLoader._audioManager.StartPlaybackBackground('chunkyMonkey.mp3', true);
+
         this._Animate();
     }
 
@@ -156,16 +165,20 @@ export class Game {
         this._CreateWalls();
         this._CreateGates();
 
-        const cookieMan = this._CreateCookieManClose();
-        this._scene.add(cookieMan);
+        this._mesh.cookieStop = this._CreateCookieManClose();
+        this._scene.add(this._mesh.cookieStop);
 
-        const cupcake = this._CreateCupcake();
-        this._scene.add(cupcake);
+        this._mesh.cookieWelcome = this._CreateCookieManOpen();
+        this._mesh.cookieWelcome.visible = false;
+        this._scene.add(this._mesh.cookieWelcome);
 
-        this._goldPlus = this._CreateGoldPlus();
-        this._goldPlus.position.set(7.25, 0.25, -7.35);
-        this._goldPlus.defaultY = this._goldPlus.position.y;
-        this._scene.add(this._goldPlus);
+        this._mesh.cupcake = this._CreateCupcake();
+        this._scene.add(this._mesh.cupcake);
+
+        this._mesh.goldPlus = this._CreateGoldPlus();
+        this._mesh.goldPlus.position.set(7.25, 0.25, -7.35);
+        this._mesh.goldPlus.defaultY = this._mesh.goldPlus.position.y;
+        this._scene.add(this._mesh.goldPlus);
     }
 
     _CreateWalls() {
@@ -189,6 +202,7 @@ export class Game {
 
             const wallCollider = {
                 name: "wallCollider" + i,
+                isEnable: true,
                 type: "Box",
                 obb: obb,
                 object: model
@@ -211,7 +225,7 @@ export class Game {
             gate.rotateY(attr[i][1].rotY);
             this._scene.add(gate);
 
-            this._gateMeshs.push(gate);
+            this._mesh.gateMeshs.push(gate);
 
             if (attr[i][2].type == 'Down') {
                 const obb = {
@@ -226,6 +240,7 @@ export class Game {
     
                 const gateDownCollider = {
                     name: "gateDownCollider" + i,
+                    isEnable: true,
                     type: "Box",
                     obb: obb,
                     object: gate
@@ -344,6 +359,7 @@ export class Game {
 
             const cookieManCollider = {
                 name: "cookieManCollider",
+                isEnable: true,
                 type: "Box",
                 obb: obb,
                 object: plane
@@ -411,36 +427,92 @@ export class Game {
         }        
     }
 
-    _PlayerCollisionСheck() {
+    _PlayerCollisionСheck() { // Game logic
         let tmp = new THREE.Vector3();
 
-        for (let i = 0; i < this._gateMeshs.length; i++) {
-            if (this._gateMeshs[i].visible) {
-                tmp.copy(this._gateMeshs[i].position);
+        // check cookieMan
+        if (this._mesh.cookieStop.visible) {
+            tmp.copy(this._mesh.cookieStop.position);
+            tmp.y -= 0.5;
+
+            if (this._player._model.position.distanceTo(tmp) < 0.4) {
+                if (this._score.goldPlus > 0) {
+                    this._mesh.cookieStop.visible = false;
+                    this._score.goldPlus--;
+                    console.log("score.goldPlus: ", this._score.goldPlus);
+                    this._resourceLoader._audioManager.PlayGameObjSound('goldPlusUp.mp3', false);
+
+                    this._mesh.cookieWelcome.visible = true;
+
+                    for (let j = 0; j < Game.worldColliders.length; j++) {
+                        if (Game.worldColliders[j].obb.center.equals(this._mesh.cookieStop.position)) {
+                            Game.worldColliders[j].isEnable = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // check goldPlus
+        if (this._mesh.goldPlus.visible) {
+            tmp.copy(this._mesh.goldPlus.position);
+            tmp.y -= 0.5;
+
+            if (this._player._model.position.distanceTo(tmp) < 0.4) {
+                this._mesh.goldPlus.visible = false;
+                this._score.goldPlus++;
+                console.log("score.goldPlus: ", this._score.goldPlus);
+                this._resourceLoader._audioManager.PlayGameObjSound('goldPlusUp.mp3', false);
+            }
+        }
+
+        // check cupcake
+        if (this._mesh.cupcake.visible) {
+            tmp.copy(this._mesh.cupcake.position);
+            tmp.y -= 0.5;
+
+            if (this._player._model.position.distanceTo(tmp) < 0.4) {
+                this._mesh.cupcake.visible = false;
+                this._score.cupcake++;
+                console.log("score.cupcake: ", this._score.cupcake);
+                this._resourceLoader._audioManager.PlayGameObjSound('goldPlusUp.mp3', false);
+            }
+        }
+
+        // check gates
+        for (let i = 0; i < this._mesh.gateMeshs.length; i++) {
+            if (this._mesh.gateMeshs[i].visible) {
+                tmp.copy(this._mesh.gateMeshs[i].position);
                 tmp.y -= 0.5;
                 
                 if (this._player._model.position.distanceTo(tmp) < 0.4) {
                     if (GATES.gatesAttributes[i][2].type == 'Up') {
-                        this._gateMeshs[i].visible = false;
-                        this._score++;
-                        console.log(this._score);
-                    } else if (this._score > 0) {
-                        this._gateMeshs[i].visible = false;
-                        this._score--;
+                        this._mesh.gateMeshs[i].visible = false;
+                        this._score.rating++;
+                        console.log("score.rating: ", this._score.rating);
+                        this._resourceLoader._audioManager.PlayGameObjSound('gateUp.mp3', false);
+                    } else if (this._score.rating > 0) {
+                        this._mesh.gateMeshs[i].visible = false;
+                        this._score.rating--;
                         
                         for (let j = 0; j < Game.worldColliders.length; j++) {
-                            if (Game.worldColliders[j].obb.center.equals(this._gateMeshs[i].position)) {
-                                Game.worldColliders.splice(j, 1);
+                            if (Game.worldColliders[j].obb.center.equals(this._mesh.gateMeshs[i].position)) {
+                                Game.worldColliders[j].isEnable = false;
                                 break;
                             }
                         }
 
-                        console.log(this._score);
+                        console.log("score.rating: ", this._score.rating);
+                        this._resourceLoader._audioManager.PlayGameObjSound('gateUp.mp3', false);
                     }
                     
                 }
             }
         }
+
+        // speed bonus
+        this._player._accelerationBonus = (this._score.rating + this._score.cupcake + this._score.goldPlus) * 2;
     }
 
     _Animate() {
@@ -451,8 +523,8 @@ export class Game {
             this._uTime += delta;
 
             if (delta > 0) {
-                this._goldPlus.rotateY((-2 * Math.PI * delta) / 8);
-                this._goldPlus.position.y = this._goldPlus.defaultY + Math.sin(this._clock.getElapsedTime() * 2) * 0.025;
+                this._mesh.goldPlus.rotateY((-2 * Math.PI * delta) / 8);
+                this._mesh.goldPlus.position.y = this._mesh.goldPlus.defaultY + Math.sin(this._clock.getElapsedTime() * 2) * 0.025;
 
                 if (this._player) {
                     this._player.Update(delta);

@@ -11,6 +11,8 @@ export class Character {
         this._orientation = orientation;
         this._control = control;
 
+        this._accelerationBonus = 0;
+
         this._Init();
     }
 
@@ -55,6 +57,7 @@ export class Character {
         velocity.add(frameDecceleration);
 
         const acc = this._acceleration.clone();
+        acc.z += this._accelerationBonus;
 
         if (this._control._keys.forward) {
             velocity.z += acc.z * timeElapsedSec;

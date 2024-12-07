@@ -56,22 +56,24 @@ export class Rigidbody {
         this._newPosition.copy(this._position).add(this._collider.offset);
 
         worldColliders.forEach((collider) => {
-            if (collider.type == "Sphere") {
-                const correctionVector = this._newPosition.clone().sub(collider.object.center).normalize();
-                const dist = collider.object.center.distanceTo(this._newPosition) - collider.object.radius;
+            if (collider.isEnable) {
+                if (collider.type == "Sphere") {
+                    const correctionVector = this._newPosition.clone().sub(collider.object.center).normalize();
+                    const dist = collider.object.center.distanceTo(this._newPosition) - collider.object.radius;
 
-                if (dist < this._collider.object.radius) {
-                    const penetrationDepth = this._collider.object.radius - dist;
-                    this._newPosition.add(correctionVector.multiplyScalar(penetrationDepth));
-                }
-            } else if (collider.type == "Box") {
-                const closestPoint = this._closestPointOnOBB(collider.obb, this._newPosition);
-                const dist = closestPoint.distanceTo(this._newPosition);
-                const correctionVector = this._newPosition.clone().sub(closestPoint).normalize();
+                    if (dist < this._collider.object.radius) {
+                        const penetrationDepth = this._collider.object.radius - dist;
+                        this._newPosition.add(correctionVector.multiplyScalar(penetrationDepth));
+                    }
+                } else if (collider.type == "Box") {
+                    const closestPoint = this._closestPointOnOBB(collider.obb, this._newPosition);
+                    const dist = closestPoint.distanceTo(this._newPosition);
+                    const correctionVector = this._newPosition.clone().sub(closestPoint).normalize();
 
-                if (dist < this._collider.object.radius) {
-                    const penetrationDepth = this._collider.object.radius - dist;
-                    this._newPosition.add(correctionVector.multiplyScalar(penetrationDepth));
+                    if (dist < this._collider.object.radius) {
+                        const penetrationDepth = this._collider.object.radius - dist;
+                        this._newPosition.add(correctionVector.multiplyScalar(penetrationDepth));
+                    }
                 }
             }
         });

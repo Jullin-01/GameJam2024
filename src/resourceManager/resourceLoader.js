@@ -3,7 +3,10 @@ import { ModelManager } from './modelManager.js';
 import { ImageManager } from './imageManager.js';
 
 let audioFiles = [
-    'GameSketch1.4.mp3'
+    'GameSketch1.4.mp3',
+    'chunkyMonkey.mp3',
+    'gateUp.mp3',
+    'goldPlusUp.mp3'
 ];
 
 let glbFiles = [
