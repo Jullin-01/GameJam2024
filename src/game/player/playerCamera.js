@@ -10,14 +10,14 @@ export class PlayerCamera {
     }
 
     _CalculateIdealOffset() {
-        const idealOffset = new THREE.Vector3(0, 4.0, -5);
+        const idealOffset = new THREE.Vector3(0, 4, -5);
         idealOffset.applyQuaternion(this._object._model.quaternion);
         idealOffset.add(this._object._model.position);
         return idealOffset;
     }
 
     _CalculateIdealLookat() {
-        const idealLookat = new THREE.Vector3(0, 0.25, 5);
+        const idealLookat = new THREE.Vector3(0, 0.25, 2);
         idealLookat.applyQuaternion(this._object._model.quaternion);
         idealLookat.add(this._object._model.position);
         return idealLookat;
