@@ -37,9 +37,12 @@ body,
   font-weight: 800;
   font-family: "Arial Black", sans-serif;
   text-align: center;
-  flex-direction: column;
 
   display: none; 
+}
+
+#button-skip-stay {
+  display: block;
 }
 
 #button-skip {
@@ -175,6 +178,7 @@ body,
   display: block;
   z-index: 3;  
   width: 40%;
+  flex-direction: column;
 
   display: none;
 }
