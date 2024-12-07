@@ -213,6 +213,7 @@ class _Part5 extends State { // "Game Jam 2024"
         this._bears = this._parent._parent._bears;
 
         this._greetings = document.getElementById("greetings");
+        this._skipCinematic = document.getElementById("skip-cinematic");
         this._registration = document.getElementById("registration");
     }
 
@@ -255,7 +256,8 @@ class _Part5 extends State { // "Game Jam 2024"
 
         if (this._time >= 6) {
             this._greetings.style.opacity = '0';      
-            this._greetings.style.display = 'none';   
+            this._skipCinematic.style.display = 'none';   
+            this._greetings.style.display = 'none';  
         }
 
 //        if (this._time >= 7.5) {

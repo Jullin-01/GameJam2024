@@ -234,6 +234,7 @@ body,
 /* Game window styles */
 
 #game {
+  background: rgb(43, 38, 38);
   height: 100vh;
   width: 100%;
   display: flex;
@@ -243,6 +244,9 @@ body,
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  opacity: 0;
+  transition: opacity 5s ease-in-out;
+  z-index: 1;
  
   display: none;
 }
@@ -311,4 +315,10 @@ body,
 
 #fullscreen-off {
   display: none;
+}
+
+.game-finish-text {
+  margin: 5%;
+  display: flex;
+  text-align: center;
 }

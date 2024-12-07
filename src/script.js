@@ -133,6 +133,16 @@ fullscreenButton.addEventListener('click', (event) => {
     }
 });
 
+document.addEventListener('fullscreenchange', () => {
+    const fullscreenOn = document.querySelector('#fullscreen-on');
+    const fullscreenOff = document.querySelector('#fullscreen-off');
+
+    if (!document.fullscreenElement) {
+        fullscreenOn.style.display = 'flex';
+        fullscreenOff.style.display = 'none';
+    }
+});
+
 startButton.addEventListener('click', (event) => {
     event.stopPropagation();
 
