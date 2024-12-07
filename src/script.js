@@ -151,7 +151,7 @@ startButton.addEventListener('click', (event) => {
 
     registrationWin.style.display = 'none';
 
-    /*  
+      
     const playerName = input.value.trim(); // Getting the username
   
         if (playerName) {
@@ -159,7 +159,7 @@ startButton.addEventListener('click', (event) => {
         } else {
           gameFinishText.textContent = 'Поздравляем, незнакомец!'; // Handling empty input
         }
-  
+  /*
     registrationWin.style.display = 'none';
     gameWin.style.display = 'flex';
     canvasWin.style.display = "none";

@@ -163,6 +163,7 @@ export class Game {
         this._LoadEnvironmentModels('rock5.glb', ENV.rock5Attributes);
 
         this._CreateWalls();
+        this._CreateInvisibleWalls();
         this._CreateGates();
 
         this._mesh.cookieStop = this._CreateCookieManClose();
@@ -212,6 +213,46 @@ export class Game {
         }        
     }
 
+    _CreateInvisibleWalls() {
+        const scene = this._scene;
+
+        const attr = [
+            // position,                     size
+            [{ x: -14, y: 9.4, z: 0.5 }, { x: 12, y: 1, z: 1 }], // 1
+            [{ x: -19.5, y: 3.45, z: 0.5 }, { x: 1, y: 10.9, z: 1 }], // 2
+            [{ x: -13.95, y: -1.5, z: 0.5 }, { x: 10.1, y: 1, z: 1 }], // 3
+        ];
+
+        for (let i = 0; i < attr.length; i++) {
+            const model = this._CreateWall(attr[i][1].x, attr[i][1].z, attr[i][1].y);
+            model.position.set(attr[i][0].x, attr[i][0].z, -attr[i][0].y);
+            
+            //model.material.transparent = true;
+            //model.material.opacity = 0.3;
+            //scene.add(model);
+
+            const obb = {
+                center: model.position.clone(),
+                halfSize: new THREE.Vector3(attr[i][1].x / 2, attr[i][1].z / 2, attr[i][1].y / 2),
+                axes: [
+                    new THREE.Vector3(1, 0, 0).applyQuaternion(model.quaternion),
+                    new THREE.Vector3(0, 1, 0).applyQuaternion(model.quaternion),
+                    new THREE.Vector3(0, 0, 1).applyQuaternion(model.quaternion)
+                ]
+            };
+
+            const invisibleWallCollider = {
+                name: "invisibleWallCollider" + i,
+                isEnable: true,
+                type: "Box",
+                obb: obb,
+                object: model
+            };
+
+            Game.worldColliders.push(invisibleWallCollider);
+        }        
+    }
+
     _CreateGates() {
         let gate;
         const attr = GATES.gatesAttributes;
@@ -254,7 +295,7 @@ export class Game {
     _CreatePlayer() {
         const model = this._resourceLoader._modelManager.GetCloneGlbModelByName('bear.glb');
         const control = new ControllerInput();
-        const playerStartPosition = new THREE.Vector3(-8.6, 0, -1);
+        const playerStartPosition = new THREE.Vector3(-8.6, 0, -1); //new THREE.Vector3(7.7, 0, 1.05);
         const playerStartOrientation = new THREE.Euler(0, Math.PI / 2, 0, 'XYZ');
 
         const colliderOffset = new THREE.Vector3(0, 0.25, 0);
@@ -450,6 +491,13 @@ export class Game {
                             break;
                         }
                     }
+
+                    const gameWin = document.getElementById("game");
+                    gameWin.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        gameWin.style.opacity = '1';
+                    }, 2000);
                 }
             }
         }
