@@ -59,16 +59,36 @@ export class Character {
         const acc = this._acceleration.clone();
         acc.z += this._accelerationBonus;
 
-        if (this._control._keys.forward) {
-            velocity.z += acc.z * timeElapsedSec;
+        const joystickX = this._control.joystick._direction.x;
+        const joystickY = this._control.joystick._direction.y;
+
+        if (joystickX != 0 || joystickY != 0) { // joystick
+            if (joystickY < 0) { // forward
+                velocity.z += acc.z * timeElapsedSec;
+            } else if (joystickY > 0) { // backward
+                velocity.z -= acc.z * timeElapsedSec;
+            }
+        } else { // keyboard
+            if (this._control._keys.forward) {
+                velocity.z += acc.z * timeElapsedSec;
+            }
+
+            if (this._control._keys.backward) {
+                velocity.z -= acc.z * timeElapsedSec;
+            }
         }
 
-        if (this._control._keys.backward) {
-            velocity.z -= acc.z * timeElapsedSec;
+        let direction = 0;
+
+        if (joystickX != 0 || joystickY != 0) { // joystick
+            direction = -joystickX;
+        } else { // keyboard
+            if (this._control._keys.left || this._control._keys.right) {
+                direction = this._control._keys.right ? -1 : 1;
+            }
         }
 
-        if (this._control._keys.left || this._control._keys.right) {
-            const direction = this._control._keys.right ? -1 : 1;
+        if (direction != 0) {
             const _Q = new THREE.Quaternion();
             const _A = new THREE.Vector3(0, 1, 0);
             const _R = controlObject.quaternion.clone();
@@ -144,7 +164,8 @@ class _IdleState extends State {
 
     Update(_, input) {
         if (input._keys.forward || input._keys.backward ||
-            input._keys.left || input._keys.right) {
+            input._keys.left || input._keys.right || 
+            input.joystick._direction.x != 0 || input.joystick._direction.y != 0) {
             this._parent.SetState('running');
         } else if (input._keys.space) {
             this._parent.SetState('jump');
@@ -188,7 +209,8 @@ class _JumpState extends State {
 
         const input = this._parent._character._control;
 
-        if (input._keys.forward || input._keys.backward) {
+        if (input._keys.forward || input._keys.backward ||
+            input.joystick._direction.x != 0 || input.joystick._direction.y != 0) {
             this._parent.SetState('running');
             return;
         }
@@ -246,7 +268,8 @@ class _RunningState extends State {
 
     Update(_, input) {
         if (input._keys.forward || input._keys.backward ||
-            input._keys.left || input._keys.right) {
+            input._keys.left || input._keys.right ||
+            input.joystick._direction.x != 0 || input.joystick._direction.y != 0) {
             if (input._keys.space) {
                 this._parent.SetState('jump');
             }

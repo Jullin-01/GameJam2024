@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ControllerInput } from './player/controllerInput.js';
+import { ControllerInput, Joystick } from './player/controllerInput.js';
 import { Character } from './player/character.js';
 import { Rigidbody } from '../common/rigidbody.js';
 import { PlayerCamera } from './player/playerCamera.js';
@@ -37,6 +37,8 @@ export class Game {
     }
 
     _Init() {
+        this._joystick = new Joystick();
+
         this._scene = new THREE.Scene();
 
         // Renderer
@@ -118,11 +120,21 @@ export class Game {
 
         this._resourceLoader._audioManager.StartPlaybackBackground('chunkyMonkey.mp3', true);
 
+        const joystick = document.getElementById("joystick");
+        const knob = document.getElementById("knob");
+        joystick.style.display = 'flex';
+        knob.style.display = 'flex';
+
         this._Animate();
     }
 
     StopRendering() {
         this._isRenderingEnabled = false;
+
+        const joystick = document.getElementById("joystick");
+        const knob = document.getElementById("knob");
+        joystick.style.display = 'none';
+        knob.style.display = 'none';
     }
 
     _CreateGradientTexture(color1, color2) {
@@ -294,7 +306,10 @@ export class Game {
 
     _CreatePlayer() {
         const model = this._resourceLoader._modelManager.GetCloneGlbModelByName('bear.glb');
+
         const control = new ControllerInput();
+        control.joystick = this._joystick;
+
         const playerStartPosition = new THREE.Vector3(-8.6, 0, -1); //new THREE.Vector3(7.7, 0, 1.05);
         const playerStartOrientation = new THREE.Euler(0, Math.PI / 2, 0, 'XYZ');
 
